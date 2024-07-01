@@ -63,30 +63,24 @@ max_outs: ndarray = Demands10m.sum(1)
 # endregion
 
 # region 在第一次周转后进行补齐
-
-# bicycles = np.array([95, 103,  91, 110,  94,  98, 118,  98, 107, 100]) # 10分钟需求矩阵的平衡态
 bicycles: ndarray = max_outs.copy()
 out_gaps = np.zeros(10, dtype=int)
-cnt = 0
 
-while cnt < 5:
-    InitBicycleNums = bicycles.copy()
-    total_paddings = np.zeros_like(max_outs)
-    for epoch in range(0, 18):
-        _, _, outs, _ = bicycle_epoch(bicycles, Demands10m) # 使用现有的自行车数量分布计算出车量
-        padded_outs = np.maximum(outs, max_outs) # 为了保证每次出车都完全满足出车上限，进行补齐
-        paddings = padded_outs - outs # 计算补齐量
-        bicycles = bicycles + paddings # 进行补齐
-        total_paddings = total_paddings + paddings
-        bicycles, _, outs, _ = bicycle_epoch(bicycles, Demands10m) # 补齐后计算出车量
-        # print(f"epoch {epoch+1}, out: {outs.sum().item()}, {outs}, paddings {paddings}")
+InitBicycleNums = bicycles.copy()
+total_paddings = np.zeros_like(max_outs)
+for epoch in range(0, 18):
+    _, _, outs, _ = bicycle_epoch(bicycles, Demands10m) # 使用现有的自行车数量分布计算出车量
+    padded_outs = np.maximum(outs, max_outs) # 为了保证每次出车都完全满足出车上限，进行补齐
+    paddings = padded_outs - outs # 计算补齐量
+    bicycles = bicycles + paddings # 进行补齐
+    total_paddings = total_paddings + paddings
+    bicycles, _, outs, _ = bicycle_epoch(bicycles, Demands10m) # 补齐后计算出车量
+    # print(f"epoch {epoch+1}, out: {outs.sum().item()}, {outs}, paddings {paddings}")
 
-    bicycles = InitBicycleNums + total_paddings
-    InitBicycleNumsList.append(bicycles)
-    print(f"step {cnt:2d} best_init {bicycles} padding {total_paddings}")
+bicycles = InitBicycleNums + total_paddings
+InitBicycleNumsList.append(bicycles)
+print(f"step {cnt:2d} best_init {bicycles} padding {total_paddings}")
 
-    # if out_gaps.sum().item() == 0 : break
-    cnt += 1
 # endregion
 
 for InitBicycleNums in InitBicycleNumsList:
