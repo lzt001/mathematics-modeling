@@ -79,7 +79,7 @@ for epoch in range(0, 18):
 
 bicycles = InitBicycleNums + total_paddings
 InitBicycleNumsList.append(bicycles)
-print(f"step {cnt:2d} best_init {bicycles} padding {total_paddings}")
+print(f"best_init {bicycles} padding {total_paddings}")
 
 # endregion
 
